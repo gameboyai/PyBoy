@@ -12,3 +12,4 @@ build:
 
 clean:
 	rm default_rom.map default_rom.sym default_rom.obj
+

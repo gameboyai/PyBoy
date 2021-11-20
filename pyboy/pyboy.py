@@ -20,7 +20,7 @@ from .core.mb import Motherboard
 
 logger = logging.getLogger(__name__)
 
-SPF = 1 / 60. # inverse FPS (frame-per-second)
+SPF = 1 / 60.  # inverse FPS (frame-per-second)
 
 defaults = {
     "color_palette": (0xFFFFFF, 0x999999, 0x555555, 0x000000),
@@ -31,16 +31,17 @@ defaults = {
 
 class PyBoy:
     def __init__(
-        self,
-        gamerom_file,
-        *,
-        bootrom_file=None,
-        profiling=False,
-        disable_renderer=False,
-        sound=False,
-        randomize=False,
-        **kwargs
+            self,
+            gamerom_file,
+            *,
+            bootrom_file=None,
+            profiling=False,
+            disable_renderer=False,
+            sound=False,
+            randomize=False,
+            **kwargs
     ):
+        print("YOU STUPID ASS PIECE OF SHIT 2")
         """
         PyBoy is loadable as an object in Python. This means, it can be initialized from another script, and be
         controlled and probed by the script. It is supported to spawn multiple emulators, just instantiate the class
@@ -80,7 +81,7 @@ class PyBoy:
 
         self.mb = Motherboard(
             gamerom_file,
-            bootrom_file or kwargs.get("bootrom"), # Our current way to provide cli arguments is broken
+            bootrom_file or kwargs.get("bootrom"),  # Our current way to provide cli arguments is broken
             kwargs["color_palette"],
             disable_renderer,
             sound,
@@ -123,7 +124,7 @@ class PyBoy:
         if self.stopped:
             return True
 
-        t_start = time.perf_counter() # Change to _ns when PyPy supports it
+        t_start = time.perf_counter()  # Change to _ns when PyPy supports it
         self._handle_events(self.events)
         t_pre = time.perf_counter()
         if not self.paused:
@@ -137,13 +138,13 @@ class PyBoy:
         t_post = time.perf_counter()
 
         secs = t_pre - t_start
-        self.avg_pre = 0.9 * self.avg_pre + 0.1*secs
+        self.avg_pre = 0.9 * self.avg_pre + 0.1 * secs
 
         secs = t_tick - t_pre
-        self.avg_tick = 0.9 * self.avg_tick + 0.1*secs
+        self.avg_tick = 0.9 * self.avg_tick + 0.1 * secs
 
         secs = t_post - t_tick
-        self.avg_post = 0.9 * self.avg_post + 0.1*secs
+        self.avg_post = 0.9 * self.avg_post + 0.1 * secs
 
         return self.quitting
 
@@ -168,7 +169,7 @@ class PyBoy:
                 with open(state_path, "rb") as f:
                     self.mb.load_state(IntIOWrapper(f))
             elif event == WindowEvent.PASS:
-                pass # Used in place of None in Cython, when key isn't mapped to anything
+                pass  # Used in place of None in Cython, when key isn't mapped to anything
             elif event == WindowEvent.PAUSE_TOGGLE:
                 if self.paused:
                     self._unpause()
@@ -315,6 +316,13 @@ class PyBoy:
         """
         return self.mb.getitem(addr)
 
+    def get_memory_values(self, addr_start, addr_end):
+        return [self.get_memory_value(i) for i in range(addr_start, addr_end)]
+
+    def set_memory_values(self, addr, values):
+        for i in range(addr, addr + len(values)):
+            self.set_memory_value(i, values[i - addr])
+
     def set_memory_value(self, addr, value):
         """
         Write one byte to a given memory address of the Game Boy's current memory state.
@@ -365,11 +373,11 @@ class PyBoy:
         self.events.append(WindowEvent(event))
 
     def get_input(
-        self,
-        ignore=(
-            WindowEvent.PASS, WindowEvent._INTERNAL_TOGGLE_DEBUG, WindowEvent._INTERNAL_RENDERER_FLUSH,
-            WindowEvent._INTERNAL_MOUSE, WindowEvent._INTERNAL_MARK_TILE
-        )
+            self,
+            ignore=(
+                    WindowEvent.PASS, WindowEvent._INTERNAL_TOGGLE_DEBUG, WindowEvent._INTERNAL_RENDERER_FLUSH,
+                    WindowEvent._INTERNAL_MOUSE, WindowEvent._INTERNAL_MARK_TILE
+            )
     ):
         """
         Get current inputs except the events specified in "ignore" tuple.
